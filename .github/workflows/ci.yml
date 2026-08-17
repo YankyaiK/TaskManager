@@ -10,6 +10,21 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: task_manager
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -22,5 +37,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Run schema
+        run: PGPASSWORD=postgres psql -h localhost -U postgres -d task_manager -f schema.sql
+
       - name: Run tests
         run: npm test
+        env:
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: task_manager
+          JWT_SECRET: test_secret_for_ci

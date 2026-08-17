@@ -1,22 +1,9 @@
 require('dotenv').config();
-const express = require('express');
 const pool = require('./config/db');
-const authRoutes = require('./routes/authRoutes');
-const projectRoutes = require('./routes/projectRoutes');
+const app = require('./app');
 
-const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
-app.use('/api/auth', authRoutes);
-app.use('/api/projects', projectRoutes);
-
-// Health check
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
-});
-
-//Tests database connection and starts server
 pool.query('SELECT NOW()', (err, result) => {
   if (err) {
     console.error('❌ Database connection failed:', err.message);
